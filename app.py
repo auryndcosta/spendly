@@ -25,7 +25,7 @@ def landing():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if session.get("user_id"):
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
@@ -55,7 +55,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("user_id"):
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     success = None
     if request.args.get("registered"):
@@ -70,7 +70,7 @@ def login():
             return render_template("login.html", error="Invalid email or password.")
 
         session["user_id"] = user["id"]
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     return render_template("login.html", success=success)
 
@@ -95,9 +95,45 @@ def logout():
     return redirect(url_for("login"))
 
 
+PROFILE_USER = {
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com",
+    "member_since": "March 2025",
+}
+
+PROFILE_STATS = {
+    "total_spent": 18240,
+    "transaction_count": 27,
+    "top_category": "Food",
+}
+
+PROFILE_TRANSACTIONS = [
+    {"date": "2026-09-10", "description": "Groceries at local supermarket", "category": "Food", "amount": 845.50},
+    {"date": "2026-09-08", "description": "Bus pass top-up", "category": "Transport", "amount": 320.00},
+    {"date": "2026-09-05", "description": "Electricity bill", "category": "Bills", "amount": 2150.00},
+    {"date": "2026-09-02", "description": "Movie tickets", "category": "Entertainment", "amount": 500.00},
+]
+
+PROFILE_CATEGORY_BREAKDOWN = [
+    {"category": "Food", "amount": 8200, "percent": 45},
+    {"category": "Bills", "amount": 5470, "percent": 30},
+    {"category": "Transport", "amount": 2740, "percent": 15},
+    {"category": "Entertainment", "amount": 1830, "percent": 10},
+]
+
+
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    return render_template(
+        "profile.html",
+        user=PROFILE_USER,
+        stats=PROFILE_STATS,
+        transactions=PROFILE_TRANSACTIONS,
+        category_breakdown=PROFILE_CATEGORY_BREAKDOWN,
+    )
 
 
 @app.route("/expenses/add")
